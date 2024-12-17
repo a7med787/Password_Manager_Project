@@ -106,25 +106,32 @@ def openprogram(username):
 
     #
 
-    def delete_password(username, website):
-        deleted = Storage1.deleteNode(username, website)
+    def delete_password(name, website):
+        deleted = Storage1.deleteNode(name, website)
 
         if deleted:
             updated_lines = []
-            if os.path.exists(f"{username}_password.txt"):
-                with open(f"{username}_password.txt", "r") as f:
+            file_path = f"{username}_password.txt"
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
                     for line in f:
-                        name, web, _ = line.strip().split("|")
-                        if name != username or web != website:
-                            updated_lines.append(line)
+                        try:
+                            file_name, file_website, _ = line.strip().split("|")
+                            # Keep lines that don't match the entry to delete
+                            if file_name != name or file_website != website:
+                                updated_lines.append(line)
+                        except ValueError:
+                            continue  # Skip malformed lines
 
-                with open(f"{username}_password.txt", "w") as f:
+                # Overwrite the file with updated data
+                with open(file_path, "w") as f:
                     f.writelines(updated_lines)
 
             messagebox.showinfo("Success", "Password deleted successfully!")
             refresh_passwords(password_frame)
         else:
             messagebox.showinfo("Not Found", "No matching entry found.")
+
 
 
     def add_page():
@@ -243,4 +250,3 @@ def openprogram(username):
     refresh_passwords(password_frame)
 
     App_Window.mainloop()
-
